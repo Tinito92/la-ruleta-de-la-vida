@@ -922,7 +922,7 @@ if(savedId){
   render();
 }
 
-// Expose to window
+// Expose to window for dynamic HTML onclick
 window.setTab=setTab;
 window.goToPlayer=goToPlayer;
 window.rollAll=rollAll;
@@ -932,11 +932,18 @@ window.restorePlayerDB=restorePlayerDB;
 window.payBailDB=payBailDB;
 window.resetGameDB=resetGameDB;
 window.updateGradeHint=updateGradeHint;
-window.updateProfOptions=updateProfOptions;
-window.registerStudent=registerStudent;
-window.showTeacherLogin=showTeacherLogin;
-window.showStudentRegister=showStudentRegister;
-window.teacherLogin=teacherLogin;
+
+// Attach static button listeners after DOM ready
+document.addEventListener("DOMContentLoaded", () => {
+  const safe = (id, fn) => { const el=document.getElementById(id); if(el) el.addEventListener("click", fn); };
+  safe("btnTeacher", showTeacherLogin);
+  safe("btnStudent", showStudentRegister);
+  safe("btnTeacherLogin", teacherLogin);
+  safe("btnRegister", registerStudent);
+  safe("btnDismissDeath", () => document.getElementById("deathModal").classList.add("hidden"));
+  document.getElementById("teacher-pass")?.addEventListener("keydown", e => { if(e.key==="Enter") teacherLogin(); });
+  document.getElementById("reg-grade")?.addEventListener("input", updateProfOptions);
+});
 </script>
 <style>
 :root{--ink:#0d1b2e;--ink2:#0f2035;--card:#14243a;--card2:#1a2f48;--gold:#d4a830;--gold-l:#f0c840;--red:#e74c3c;--red-d:#c0392b;--green:#2ecc71;--green-d:#1e8449;--blue:#3498db;--teal:#1abc9c;--purple:#9b59b6;--text:#e8dfc8;--text-dim:#a89870;--text-faint:#4a5a6a;--border:rgba(212,168,48,0.2);--shadow:rgba(0,0,0,0.45);}
@@ -1176,8 +1183,8 @@ header::after{content:"";position:absolute;inset:0;background:linear-gradient(to
     <h2>🎲 La Ruleta de la Vida</h2>
     <p>Simulador de economía personal para el aula. ¿Cómo quieres entrar?</p>
     <div class="entry-btns">
-      <button class="btn-teacher" onclick="showTeacherLogin()">👨‍🏫 Soy el profesor/a</button>
-      <button class="btn-student" onclick="showStudentRegister()">👨‍🎓 Soy alumno/a</button>
+      <button class="btn-teacher" id="btnTeacher">👨‍🏫 Soy el profesor/a</button>
+      <button class="btn-student" id="btnStudent">👨‍🎓 Soy alumno/a</button>
     </div>
   </div>
 </div>
@@ -1188,8 +1195,8 @@ header::after{content:"";position:absolute;inset:0;background:linear-gradient(to
     <h2>👨‍🏫 Acceso Profesor</h2>
     <p>Introduce la contraseña para acceder al modo profesor.</p>
     <label>Contraseña</label>
-    <input class="m-inp" id="teacher-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')teacherLogin()">
-    <button class="m-btn" onclick="teacherLogin()">Entrar →</button>
+    <input class="m-inp" id="teacher-pass" type="password" placeholder="••••••••">
+    <button class="m-btn" id="btnTeacherLogin">Entrar →</button>
   </div>
 </div>
 
@@ -1201,10 +1208,10 @@ header::after{content:"";position:absolute;inset:0;background:linear-gradient(to
     <label>Tu nombre</label>
     <input class="m-inp" id="reg-name" placeholder="Nombre y apellido">
     <label>Tu nota de matemáticas (0-10)</label>
-    <input class="m-inp" id="reg-grade" type="number" min="0" max="10" step="0.1" placeholder="Ej: 7.5" oninput="updateProfOptions()">
+    <input class="m-inp" id="reg-grade" type="number" min="0" max="10" step="0.1" placeholder="Ej: 7.5">
     <label>Elige tu profesión</label>
     <select class="m-select" id="reg-prof"></select>
-    <button class="m-btn" onclick="registerStudent()">¡Unirme a la partida! 🚀</button>
+    <button class="m-btn" id="btnRegister">¡Unirme a la partida! 🚀</button>
   </div>
 </div>
 
@@ -1213,7 +1220,7 @@ header::after{content:"";position:absolute;inset:0;background:linear-gradient(to
   <div class="dbox">
     <h2>☠️ Eliminado/a</h2>
     <p id="deathDesc"></p>
-    <button onclick="dismissDeath()">Continuar →</button>
+    <button id="btnDismissDeath">Continuar →</button>
   </div>
 </div>
 </body>
